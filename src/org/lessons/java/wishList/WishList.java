@@ -1,5 +1,6 @@
 package org.lessons.java.wishList;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,10 +9,14 @@ import java.util.Scanner;
 
 public class WishList {
     public static void main(String[] args) throws IOException {
-        List<Present> wishList = new ArrayList<>();
-        Scanner scanner = new Scanner(System.in);
+        List<Present> wishList = new ArrayList<>(); // inizializzo la lista
+        File list = new File("./resources/wishList.txt");   // salvo il path del file
+        Scanner scanner = new Scanner(System.in);   // inizializzo lo scanner
+        Scanner listReader = new Scanner(list); // inizializzo lo scanner per leggere il file
         int choice = -1;
-        FileWriter writer = new FileWriter("./resources/wishList.txt", true);
+        readListFromFile(listReader, wishList); // leggo dal file e salvo nella lista
+        listReader.close(); // chiudo lo scanner per leggere da file
+
 
         while (choice != 0) {
             printMenu();
@@ -22,16 +27,16 @@ public class WishList {
                 case 1:
                     // put new present in wishList
                     System.out.print("Inserisci nome del nuovo regalo: ");
-                    wishList.add(new Present(scanner.nextLine()));
+                    wishList.add(new Present(scanner.nextLine()));  // aggiungo il nuovo regalo alla lista
                     break;
                 case 2:
                     // print wishList
-                    printList(wishList);
+                    printList(wishList);    // stampo la lista dei regali
                     break;
                 case 3:
                     // save wishList
                     try {
-                        writeListToFile(writer, wishList);
+                        writeListToFile(list, wishList);  // scrivo la lista sul file
                     } catch (IOException luisa) {
                         System.out.println("Unable to save the wish list");
                     }
@@ -40,9 +45,9 @@ public class WishList {
                     break;
                 default:
                     System.out.println("Scelta non valida");
+                    break;
             }
         }
-        writer.close();
         scanner.close();
     }
 
@@ -65,11 +70,27 @@ public class WishList {
         }
     }
 
-    public static void writeListToFile(FileWriter fw, List<Present> list) throws IOException {
+    public static void writeListToFile(File f, List<Present> list) throws IOException {
         int counter = 1;
+        FileWriter writer = new FileWriter(f);   // inizializzo il file writer
+//        if (list.isEmpty()) {
+//            counter = 1;
+//        } else {
+//            counter = list.size();
+//        }
         for (Present present : list) {
-            fw.write("\nPresent n." + counter + " " + present.getName());
+            writer.write("Present n." + counter + " " + present.getName());
+            writer.write("\n");
             counter++;
         }
+        writer.close(); // chiudo il file writer
+    }
+
+    public static void readListFromFile(Scanner fr, List<Present> list) {
+        while (fr.hasNextLine()) {
+//            System.out.println(fr.nextLine().substring(12));
+            list.add(new Present(fr.nextLine().substring(12)));
+        }
+//        fr.close();
     }
 }
